@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/morning-brief.mjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/update-tracker.mjs",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Write(logs/sessions/*.md)",
+      "Write(journal/*.md)",
+      "Write(me/*.md)",
+      "Write(goals/*.md)",
+      "Write(habits/active.md)",
+      "Write(habits/loops.md)",
+      "Write(habits/stacking.md)",
+      "Write(content/ideas.md)",
+      "Write(content/clips.md)",
+      "Write(content/build-journal.md)",
+      "Write(TASKS.md)",
+      "Write(projects/*.md)",
+      "Edit(me/*.md)",
+      "Edit(goals/*.md)",
+      "Edit(TASKS.md)",
+      "Bash(node scripts/setup.mjs)",
+      "Bash(node scripts/update-tracker.mjs --force)"
+    ]
+  }
+}

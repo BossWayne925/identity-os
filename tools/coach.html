@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>identity-os — Coach Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f2ea;
+      --surface: rgba(255, 255, 250, 0.96);
+      --surface-strong: #f0ebe0;
+      --text: #2b2a28;
+      --muted: #6f6b60;
+      --accent: #7b6f57;
+      --accent-soft: #b9ac94;
+      --border: rgba(107, 98, 79, 0.16);
+      --shadow: 0 24px 70px rgba(67, 58, 44, 0.08);
+      --radius: 24px;
+      --radius-sm: 16px;
+      --transition: 180ms ease;
+      --green: #4a7c59;
+      --red: #9b4a3a;
+      --yellow: #8a7340;
+    }
+
+    /* theme: focused (dark/minimal) — set via theme: field in me/identity-now.md */
+    body[data-theme="focused"] {
+      color-scheme: dark;
+      --bg: #14151a;
+      --surface: rgba(26, 28, 34, 0.96);
+      --surface-strong: #20232b;
+      --text: #e8e6e1;
+      --muted: #8d8b85;
+      --accent: #8a9bb8;
+      --accent-soft: #4a5468;
+      --border: rgba(140, 150, 170, 0.14);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.4);
+      --green: #6fae7f;
+      --red: #c46a58;
+      --yellow: #c2a45e;
+      background: linear-gradient(180deg, #16171c 0%, #121318 100%);
+    }
+    body[data-theme="focused"]::before { display: none; }
+    body[data-theme="focused"] .card { background: rgba(26, 28, 34, 0.95); }
+    body[data-theme="focused"] .list-item,
+    body[data-theme="focused"] .commitment-item { background: #1d2027; border-color: rgba(140,150,170,0.1); }
+    body[data-theme="focused"] .text-area { background: rgba(26,28,34,0.9); }
+    body[data-theme="focused"] .button.primary { color: #14151a; }
+
+    /* theme: bold (high contrast) */
+    body[data-theme="bold"] {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface-strong: #f2f2f2;
+      --text: #111111;
+      --muted: #444444;
+      --accent: #d63d2e;
+      --accent-soft: #f0a89f;
+      --border: rgba(0, 0, 0, 0.25);
+      --shadow: 0 8px 0 rgba(0, 0, 0, 0.9);
+      --radius: 8px;
+      --radius-sm: 6px;
+      --green: #1a7f37;
+      --red: #c4231a;
+      --yellow: #9a6700;
+      background: #ffffff;
+    }
+    body[data-theme="bold"]::before { display: none; }
+    body[data-theme="bold"] .card { border: 2px solid #111; box-shadow: 6px 6px 0 rgba(17,17,17,0.9); }
+    body[data-theme="bold"] header { border: 2px solid #111; box-shadow: 6px 6px 0 rgba(17,17,17,0.9); }
+    body[data-theme="bold"] .list-item,
+    body[data-theme="bold"] .commitment-item { background: #fff; border: 1.5px solid #111; }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: radial-gradient(circle at top left, rgba(209, 194, 158, 0.20), transparent 24%),
+                  radial-gradient(circle at bottom right, rgba(169, 152, 118, 0.14), transparent 28%),
+                  linear-gradient(180deg, #f9f5ed 0%, #f4ede1 100%);
+      color: var(--text);
+      padding: 24px;
+      line-height: 1.6;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url('data:image/svg+xml,%3Csvg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"%3E%3Ccircle cx="60" cy="60" r="40" fill="%23d9cfa9" fill-opacity="0.16"/%3E%3C/svg%3E');
+      opacity: 0.45;
+      pointer-events: none;
+      transform: translate(-20%, -18%);
+    }
+
+    .page { max-width: 1280px; margin: 0 auto; display: grid; gap: 24px; }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 26px 30px;
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      width: 250px; height: 250px;
+      border-radius: 999px;
+      background: rgba(171, 154, 122, 0.14);
+      right: -80px; bottom: -80px;
+      pointer-events: none;
+    }
+
+    .hero { max-width: 680px; }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2.2rem, 3vw, 3rem);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .hero p { margin: 0; color: var(--muted); max-width: 640px; font-size: 1rem; }
+
+    .header-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+    .button, .toggle {
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition), background var(--transition), color var(--transition);
+      font-weight: 600;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    .button:hover, .toggle:hover { transform: translateY(-1px); border-color: rgba(123,111,87,0.28); }
+    .button.primary { background: var(--accent); color: white; border-color: transparent; }
+    .button.primary:hover { background: #8b7d62; }
+    .button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .note { margin-top: 14px; color: var(--muted); font-size: 0.95rem; }
+
+    .grid { display: grid; gap: 24px; }
+    .summary-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+    .card {
+      background: rgba(255,255,250,0.95);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      box-shadow: 0 18px 50px rgba(72, 60, 33, 0.06);
+      backdrop-filter: blur(8px);
+    }
+
+    .card strong { color: var(--accent); }
+
+    .stat { display: flex; flex-direction: column; gap: 10px; }
+    .stat .value { font-size: 2.5rem; font-weight: 700; line-height: 1; }
+    .stat .label { color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.82rem; }
+
+    .block-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .block-title h2 { margin: 0; font-size: 1.1rem; letter-spacing: -0.02em; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(123,111,87,0.08);
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .pill.green { background: rgba(74,124,89,0.1); color: var(--green); }
+    .pill.red { background: rgba(155,74,58,0.1); color: var(--red); }
+    .pill.yellow { background: rgba(138,115,64,0.1); color: var(--yellow); }
+
+    .list { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
+
+    .list-item {
+      display: grid;
+      gap: 10px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      background: #fffdfa;
+      border: 1px solid rgba(171, 154, 122, 0.12);
+    }
+
+    .list-item-title { font-size: 1rem; font-weight: 600; margin: 0; color: var(--text); }
+    .list-item-meta { color: var(--muted); font-size: 0.95rem; }
+
+    .commitment-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #fffdfa;
+      border: 1px solid rgba(171, 154, 122, 0.12);
+      margin-bottom: 10px;
+    }
+
+    .commitment-item .check {
+      width: 20px; height: 20px; min-width: 20px;
+      border-radius: 6px;
+      border: 2px solid var(--accent-soft);
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .commitment-item.done .check {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+      font-size: 12px;
+    }
+
+    .commitment-item.done .commitment-text { text-decoration: line-through; color: var(--muted); }
+
+    .controls { display: grid; gap: 12px; }
+
+    .text-area {
+      width: 100%;
+      min-height: 140px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,250,0.9);
+      padding: 18px;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text);
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .footer-msg { color: var(--muted); font-size: 0.95rem; margin-top: 6px; }
+    .status { font-size: 0.94rem; color: var(--accent); font-weight: 600; min-height: 1.1rem; }
+    .hidden { display: none !important; }
+
+    .portrait-text {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.8;
+      font-style: italic;
+      border-left: 3px solid var(--accent-soft);
+      padding-left: 16px;
+      margin: 0;
+    }
+
+    .gap-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .gap-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .gap-table td { padding: 10px 14px; border-bottom: 1px solid rgba(171,154,122,0.1); vertical-align: top; }
+    .gap-table tr:last-child td { border-bottom: none; }
+    .gap-table tr:hover td { background: rgba(123,111,87,0.04); }
+    .gap-table .col-stated { color: var(--green); font-weight: 600; }
+    .gap-table .col-lived { color: var(--red); font-weight: 600; }
+    .gap-table .col-gap { color: var(--muted); font-size: 0.88rem; }
+
+    .ninety-day-section { margin-bottom: 18px; }
+    .ninety-day-section h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin: 0 0 10px; }
+    .ninety-day-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(171,154,122,0.08);
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    .ninety-day-item:last-child { border-bottom: none; }
+    .ninety-day-item .check { width: 18px; height: 18px; min-width: 18px; border-radius: 5px; border: 2px solid var(--accent-soft); display: inline-flex; align-items: center; justify-content: center; margin-top: 1px; flex-shrink: 0; font-size: 11px; }
+    .ninety-day-item.done .check { background: var(--green); border-color: var(--green); color: white; }
+    .ninety-day-item.done span { text-decoration: line-through; color: var(--muted); }
+
+    .progress-bar-wrap { height: 6px; background: rgba(123,111,87,0.1); border-radius: 99px; margin-top: 8px; margin-bottom: 16px; }
+    .progress-bar { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.5s ease; }
+
+    .workspace-restore {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .workspace-restore button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      font-size: 0.85rem;
+      font-family: inherit;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 900px) {
+      header { padding: 20px; }
+      .page { gap: 18px; }
+      .grid[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    }
+
+    @media (max-width: 620px) {
+      body { padding: 16px; }
+      .hero h1 { font-size: 2rem; }
+      .hero p { font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="hero">
+        <p style="margin:0 0 10px;font-size:0.95rem;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;">identity-os</p>
+        <h1>Every action is a vote</h1>
+        <p>Open your identity-os folder to see the becoming streak, the values gap, habit votes, stack integrity, and where the week actually went.</p>
+        <div class="workspace-restore hidden" id="restoreSection">
+          Last workspace: <span id="lastWorkspaceName"></span> — <button id="restoreBtn">Reload it</button>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="button primary" id="loadWorkspace">Choose workspace</button>
+        <button class="button" id="speakSummary">Read summary</button>
+        <button class="button" id="startVoice">Start voice answer</button>
+        <div class="note" id="voiceNote">Voice input available in Chromium-based browsers.</div>
+      </div>
+    </header>
+
+    <!-- Snapshot stats -->
+    <div class="card">
+      <div class="block-title">
+        <div>
+          <h2>Snapshot</h2>
+          <p class="footer-msg">Loaded workspace: <span id="workspaceLabel">none</span></p>
+        </div>
+        <span class="pill" id="summaryStatus">No workspace loaded</span>
+      </div>
+      <div class="grid summary-grid" id="overviewStats">
+        <div class="card stat"><div class="value" id="sessionsCount">—</div><div class="label">Sessions logged</div></div>
+        <div class="card stat"><div class="value" id="currentStreak">—</div><div class="label">Becoming streak</div></div>
+        <div class="card stat"><div class="value" id="hitRate">—</div><div class="label">Plan hit rate</div></div>
+        <div class="card stat"><div class="value" id="ninetyDayPct">—</div><div class="label">90-day progress</div></div>
+        <div class="card stat"><div class="value" id="journalStreak">—</div><div class="label">Journal streak</div></div>
+      </div>
+    </div>
+
+    <!-- Affirmations + habit votes + stacks -->
+    <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; gap: 24px;">
+      <div class="card">
+        <div class="block-title"><h2>Affirmations</h2><span class="pill" id="affirmationsPill">—</span></div>
+        <div id="affirmationsList"><p style="color:var(--muted);font-size:0.95rem;margin:0;">Load workspace to surface affirmations.</p></div>
+      </div>
+
+      <div class="card">
+        <div class="block-title"><h2>Habit votes</h2><span class="pill">7d / 30d</span></div>
+        <div id="habitVotes"><p style="color:var(--muted);font-size:0.95rem;margin:0;">Votes appear after evening check-ins.</p></div>
+      </div>
+
+      <div class="card">
+        <div class="block-title"><h2>Stack integrity</h2><span class="pill" id="stackPill">—</span></div>
+        <div id="stackList"><p style="color:var(--muted);font-size:0.95rem;margin:0;">Stacks appear once they're run.</p></div>
+      </div>
+    </div>
+
+    <!-- Identity: becoming portrait + gap -->
+    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+      <div class="card">
+        <div class="block-title"><h2>Who you're becoming</h2><span class="pill" id="becomingPill">—</span></div>
+        <p class="portrait-text" id="becomingPortrait">Open your workspace to surface the portrait.</p>
+      </div>
+
+      <div class="card">
+        <div class="block-title"><h2>Identity gap</h2><span class="pill">Stated vs. lived</span></div>
+        <div id="gapContainer">
+          <p style="color:var(--muted);font-size:0.95rem;margin:0;">Load workspace to surface the gap.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coach insight + weekly commitments -->
+    <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 24px;">
+      <div class="card">
+        <div class="block-title"><h2>Coach insight</h2><span class="pill">Action</span></div>
+        <p id="coachInsight" style="margin:0;color:var(--muted);font-size:1.05rem;">Open your workspace to see a quiet recommendation.</p>
+        <div style="margin-top:22px;display:grid;gap:14px;" id="patternList"></div>
+      </div>
+
+      <div class="card" id="commitmentCard">
+        <div class="block-title"><h2>Weekly commitments</h2><span class="pill" id="commitmentProgress">—</span></div>
+        <div id="commitmentsList"></div>
+      </div>
+    </div>
+
+    <!-- 90-day picture -->
+    <div class="card">
+      <div class="block-title">
+        <h2>90-day picture</h2>
+        <span class="pill" id="ninetyDayPill">—</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="ninetyDayBar" style="width:0%"></div></div>
+      <div id="ninetyDayContainer">
+        <p style="color:var(--muted);font-size:0.95rem;margin:0;">Load workspace to surface the 90-day targets.</p>
+      </div>
+    </div>
+
+    <!-- Sessions + reflection -->
+    <div class="grid" style="grid-template-columns: 2fr 1fr; gap: 24px;">
+      <div class="card">
+        <div class="block-title"><h2>Recent sessions</h2><span class="pill" id="latestType">—</span></div>
+        <ul class="list" id="sessionsList"></ul>
+      </div>
+
+      <div class="card">
+        <div class="block-title"><h2>Conversation</h2><span class="pill">Voice ready</span></div>
+        <p class="footer-msg">Ask yourself one thing, speak or type it, then reflect below.</p>
+        <div class="controls">
+          <textarea class="text-area" id="coachPrompt" readonly>What did I learn from my most recent session? What one adjustment can make the next week more aligned with my goals?</textarea>
+          <textarea class="text-area" id="reflectionInput" placeholder="Type your answer here..."></textarea>
+          <button class="button primary" id="readResponse">Speak response</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="folderInput" webkitdirectory directory multiple class="hidden">
+
+  <script>
+    // ── IndexedDB persistence for workspace name ──────────────────────────
+    const DB_NAME = 'identity-os-coach';
+    const DB_STORE = 'prefs';
+
+    function openDB() {
+      return new Promise((res, rej) => {
+        const r = indexedDB.open(DB_NAME, 1);
+        r.onupgradeneeded = () => r.result.createObjectStore(DB_STORE);
+        r.onsuccess = () => res(r.result);
+        r.onerror = () => rej(r.error);
+      });
+    }
+
+    async function savePref(key, value) {
+      try {
+        const db = await openDB();
+        const tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).put(value, key);
+        return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+      } catch (_) {}
+    }
+
+    async function loadPref(key) {
+      try {
+        const db = await openDB();
+        const tx = db.transaction(DB_STORE, 'readonly');
+        return new Promise(res => {
+          const r = tx.objectStore(DB_STORE).get(key);
+          r.onsuccess = () => res(r.result ?? null);
+          r.onerror = () => res(null);
+        });
+      } catch (_) { return null; }
+    }
+
+    // ── DOM refs ──────────────────────────────────────────────────────────
+    const loadWorkspaceButton = document.getElementById('loadWorkspace');
+    const folderInput = document.getElementById('folderInput');
+    const workspaceLabel = document.getElementById('workspaceLabel');
+    const summaryStatus = document.getElementById('summaryStatus');
+    const sessionsCount = document.getElementById('sessionsCount');
+    const currentStreak = document.getElementById('currentStreak');
+    const hitRate = document.getElementById('hitRate');
+    const ninetyDayPct = document.getElementById('ninetyDayPct');
+    const coachInsight = document.getElementById('coachInsight');
+    const patternList = document.getElementById('patternList');
+    const commitmentsList = document.getElementById('commitmentsList');
+    const commitmentProgress = document.getElementById('commitmentProgress');
+    const sessionsList = document.getElementById('sessionsList');
+    const speakSummaryButton = document.getElementById('speakSummary');
+    const startVoiceButton = document.getElementById('startVoice');
+    const coachPrompt = document.getElementById('coachPrompt');
+    const reflectionInput = document.getElementById('reflectionInput');
+    const readResponseButton = document.getElementById('readResponse');
+    const voiceNote = document.getElementById('voiceNote');
+    const becomingPortrait = document.getElementById('becomingPortrait');
+    const becomingPill = document.getElementById('becomingPill');
+    const gapContainer = document.getElementById('gapContainer');
+    const ninetyDayContainer = document.getElementById('ninetyDayContainer');
+    const ninetyDayBar = document.getElementById('ninetyDayBar');
+    const ninetyDayPill = document.getElementById('ninetyDayPill');
+    const restoreSection = document.getElementById('restoreSection');
+    const lastWorkspaceName = document.getElementById('lastWorkspaceName');
+    const restoreBtn = document.getElementById('restoreBtn');
+
+    let latestSummary = '';
+    let recognition = null;
+    let speechSupported = 'speechSynthesis' in window;
+    let voiceSupported = ('SpeechRecognition' in window) || ('webkitSpeechRecognition' in window);
+
+    if (!voiceSupported) {
+      voiceNote.textContent = 'Voice input is not supported in this browser.';
+      startVoiceButton.disabled = true;
+    }
+
+    // ── Restore last workspace name from IndexedDB ────────────────────────
+    (async () => {
+      const name = await loadPref('lastWorkspaceName');
+      if (name) {
+        lastWorkspaceName.textContent = name;
+        restoreSection.classList.remove('hidden');
+        restoreBtn.addEventListener('click', () => folderInput.click());
+      }
+    })();
+
+    loadWorkspaceButton.addEventListener('click', () => folderInput.click());
+    folderInput.addEventListener('change', async (event) => {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+      await loadWorkspace(files);
+    });
+
+    // ── Main loader ───────────────────────────────────────────────────────
+    async function loadWorkspace(files) {
+      summaryStatus.textContent = 'Loading…';
+      const fileMap = new Map();
+      files.forEach(f => fileMap.set(f.webkitRelativePath.replaceAll('\\', '/'), f));
+
+      const rootPath = files[0]?.webkitRelativePath.split('/')[0] || 'workspace';
+      workspaceLabel.textContent = rootPath;
+      await savePref('lastWorkspaceName', rootPath);
+      lastWorkspaceName.textContent = rootPath;
+      restoreSection.classList.remove('hidden');
+
+      // Read all needed files
+      const [
+        commitmentText,
+        becomingText,
+        valuesLivedText,
+        ninetyDayText,
+        affirmationsText,
+        identityNowText,
+      ] = await Promise.all([
+        readFile(fileMap, 'goals/weekly-commitments.md'),
+        readFile(fileMap, 'me/becoming.md'),
+        readFile(fileMap, 'me/values-lived.md'),
+        readFile(fileMap, 'goals/90-day-picture.md'),
+        readFile(fileMap, 'me/affirmations.md'),
+        readFile(fileMap, 'me/identity-now.md'),
+      ]);
+
+      // theme from me/identity-now.md frontmatter (focused | warm | bold)
+      const identityFm = parseFrontmatter(identityNowText || '');
+      const theme = String(identityFm.theme || 'warm').toLowerCase();
+      document.body.dataset.theme = theme === 'warm' ? '' : theme;
+
+      const sessionFiles = [...fileMap.entries()]
+        .filter(([n]) => n.includes('logs/sessions/') && n.endsWith('.md'))
+        .map(([, f]) => f);
+
+      const sessions = [];
+      for (const f of sessionFiles) {
+        const text = await f.text();
+        const fm = parseFrontmatter(text);
+        if (Object.keys(fm).length) sessions.push(fm);
+      }
+
+      const commitments = parseCommitments(commitmentText);
+      const summary = buildSummary(sessions, commitments);
+      const ninetyDay = parseNinetyDay(ninetyDayText);
+
+      // journal streak — consecutive days ending at the newest entry
+      const journalDates = [...fileMap.keys()]
+        .filter(n => /(^|\/)journal\/\d{4}-\d{2}-\d{2}\.md$/.test(n))
+        .map(n => n.match(/(\d{4}-\d{2}-\d{2})\.md$/)[1])
+        .sort();
+      document.getElementById('journalStreak').textContent = countConsecutive(journalDates);
+
+      renderSummary(summary, sessions, commitments, ninetyDay);
+      renderBecoming(becomingText);
+      renderGap(valuesLivedText);
+      renderNinetyDay(ninetyDay);
+      renderAffirmations(affirmationsText);
+      renderVotesAndStacks(sessions);
+
+      summaryStatus.textContent = sessions.length ? 'Ready' : 'No session logs found';
+    }
+
+    async function readFile(map, path) {
+      const normalized = path.replaceAll('\\', '/');
+      const file = map.get(normalized) ||
+        [...map.entries()].find(([k]) => k.endsWith('/' + path.split('/').pop()))?.[1];
+      if (!file) return '';
+      try { return await file.text(); } catch (_) { return ''; }
+    }
+
+    // ── Parsers ───────────────────────────────────────────────────────────
+    // identity-os constrained frontmatter: every value is strict JSON.
+    // One JSON.parse per line — the same rule as scripts/lib/frontmatter.mjs.
+    function parseFrontmatter(content) {
+      const match = content.match(/^---\s*([\s\S]*?)\s*---/);
+      if (!match) return {};
+      const result = {};
+      for (const line of match[1].split(/\r?\n/).filter(Boolean)) {
+        const item = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+        if (!item) continue;
+        const key = item[1];
+        const raw = item[2].trim();
+        try { result[key] = JSON.parse(raw); }
+        catch (_) { result[key] = raw; }
+      }
+      return result;
+    }
+
+    function stripFrontmatter(content) {
+      return content.replace(/^---\s*[\s\S]*?\s*---\s*/, '');
+    }
+
+    function parseCommitments(text) {
+      if (!text) return [];
+      const commitments = [];
+      for (const line of text.split(/\r?\n/)) {
+        const m = line.match(/^\s*(?:[-*]|\d+\.)\s+\[([ xX])\]\s*(.+)$/);
+        if (m) commitments.push({ text: m[2].trim(), done: m[1].toLowerCase() === 'x' });
+      }
+      return commitments;
+    }
+
+    function parseNinetyDay(text) {
+      if (!text) return { sections: [], total: 0, done: 0 };
+      const sections = [];
+      let currentSection = null;
+      let total = 0, done = 0;
+
+      for (const line of text.split(/\r?\n/)) {
+        const h3 = line.match(/^###\s+(.+)/);
+        if (h3) { currentSection = { title: h3[1].trim(), items: [] }; sections.push(currentSection); continue; }
+        const item = line.match(/^- \[([ xX])\]\s*(.+)/);
+        if (item && currentSection) {
+          const isDone = item[1].toLowerCase() === 'x';
+          currentSection.items.push({ text: item[2].trim(), done: isDone });
+          total++;
+          if (isDone) done++;
+        }
+      }
+      return { sections, total, done };
+    }
+
+    function parseBecomingPortrait(text) {
+      if (!text) return null;
+      // Extract the paragraph under "## The portrait"
+      const m = text.match(/##\s+The portrait\s*\n+([\s\S]*?)(?=\n##|\n---|\s*$)/i);
+      if (!m) return null;
+      return m[1].trim().replace(/\n+/g, ' ');
+    }
+
+    function parseGapTable(text) {
+      if (!text) return null;
+      const rows = [];
+      let inTable = false;
+      for (const line of text.split(/\r?\n/)) {
+        if (line.match(/^\|.*Stated.*Lived.*Gap/i)) { inTable = true; continue; }
+        if (inTable && line.match(/^\|[-| ]+\|/)) continue;
+        if (inTable && line.startsWith('|')) {
+          const cols = line.split('|').map(c => c.trim()).filter(Boolean);
+          if (cols.length >= 3) rows.push({ stated: cols[0], lived: cols[1], gap: cols[2] });
+        } else if (inTable && line.trim() === '') {
+          break;
+        }
+      }
+      return rows.length ? rows : null;
+    }
+
+    // ── Build summary ─────────────────────────────────────────────────────
+    function buildSummary(sessions, commitments) {
+      const ordered = sessions.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+      const evenings = ordered.filter(s => s.type === 'evening');
+      const latest = ordered[ordered.length - 1];
+      const becomingStreak = countBecomingStreak(evenings);
+      const planDone = computePlanDone(evenings);
+      const patterns = computePatterns(evenings, commitments, latest);
+      latestSummary = `You have ${sessions.length} sessions logged, ${becomingStreak} becoming evenings in a row, and a ${planDone.hitRate}% plan hit rate.`;
+      return { ordered, latest, becomingStreak, planDone, patterns };
+    }
+
+    function countBecomingStreak(evenings) {
+      let streak = 0;
+      for (let i = evenings.length - 1; i >= 0; i--) {
+        if (String(evenings[i].score || '').toLowerCase() === 'becoming') streak++;
+        else break;
+      }
+      return streak;
+    }
+
+    function computePlanDone(evenings) {
+      let planned = 0, done = 0;
+      for (const s of evenings) {
+        const p = Array.isArray(s['top-3-planned']) ? s['top-3-planned'] : [];
+        const d = Array.isArray(s['top-3-done']) ? s['top-3-done'] : [];
+        planned += p.length; done += d.length;
+      }
+      return { planned, done, hitRate: planned ? Math.round((done / planned) * 100) : 0 };
+    }
+
+    function computePatterns(evenings, commitments, latest) {
+      const patterns = [];
+      if (latest && latest.type === 'weekly-review') patterns.push('Weekly review completed — reflect on the week before anything new.');
+      if (commitments.length && commitments.filter(c => c.done).length / commitments.length < 0.5)
+        patterns.push('Less than half of this week’s commitments are done. Focus on one small win.');
+      if (evenings.length >= 3) {
+        const mixed = evenings.filter(s => String(s.score).toLowerCase() === 'mixed').length;
+        if (mixed >= 2) patterns.push('Two or more mixed evenings. What’s the one thing that keeps making the day mixed?');
+      }
+      const czStreak = (() => {
+        let n = 0;
+        for (let i = evenings.length - 1; i >= 0; i--) {
+          if (String(evenings[i].score || '').toLowerCase() === 'comfort-zone-won') n++;
+          else break;
+        }
+        return n;
+      })();
+      if (czStreak >= 2) patterns.push(`Comfort zone won ${czStreak} evenings in a row. Name what’s pulling you back.`);
+      if (patterns.length === 0) patterns.push('Your system is quiet right now — keep it simple and stick with the next small step.');
+      return patterns;
+    }
+
+    // ── Renderers ─────────────────────────────────────────────────────────
+    function renderSummary(summary, sessions, commitments, ninetyDay) {
+      sessionsCount.textContent = sessions.length;
+      currentStreak.textContent = summary.becomingStreak;
+      hitRate.textContent = `${summary.planDone.hitRate}%`;
+      const ndPct = ninetyDay.total ? Math.round((ninetyDay.done / ninetyDay.total) * 100) : 0;
+      ninetyDayPct.textContent = `${ndPct}%`;
+
+      document.getElementById('latestType').textContent =
+        summary.latest ? (summary.latest.type || 'session') : 'none';
+
+      coachInsight.textContent = summary.patterns[0] || 'No insight yet.';
+      patternList.innerHTML = summary.patterns.map(t =>
+        `<div class="list-item"><p class="list-item-title">${escHtml(t)}</p></div>`
+      ).join('');
+
+      const doneCount = commitments.filter(c => c.done).length;
+      commitmentProgress.textContent = `${doneCount}/${commitments.length || 0}`;
+      if (doneCount === commitments.length && commitments.length > 0) {
+        commitmentProgress.className = 'pill green';
+      } else if (doneCount === 0) {
+        commitmentProgress.className = 'pill red';
+      } else {
+        commitmentProgress.className = 'pill yellow';
+      }
+
+      commitmentsList.innerHTML = commitments.map(c => `
+        <div class="commitment-item ${c.done ? 'done' : ''}">
+          <div class="check">${c.done ? '✓' : ''}</div>
+          <span class="commitment-text">${escHtml(c.text)}</span>
+        </div>
+      `).join('') || '<p style="color:var(--muted);margin:0;font-size:0.95rem;">No commitments found.</p>';
+
+      sessionsList.innerHTML = sessions.slice(-5).reverse().map(s => {
+        const date = s.date ? new Date(s.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'unknown';
+        const score = s.score ? String(s.score).toLowerCase() : 'none';
+        const planned = Array.isArray(s['top-3-planned']) ? s['top-3-planned'].length : 0;
+        return `<li class="list-item">
+          <p class="list-item-title">${escHtml(s.type || 'session')} — ${date}</p>
+          <p class="list-item-meta">Score: ${escHtml(score)}${planned ? ` · Planned ${planned}` : ''}</p>
+        </li>`;
+      }).join('') || '<li class="list-item"><p class="list-item-title">No sessions loaded yet.</p></li>';
+    }
+
+    function renderBecoming(text) {
+      const portrait = parseBecomingPortrait(text);
+      if (portrait) {
+        becomingPortrait.textContent = portrait;
+        becomingPill.textContent = 'Portrait loaded';
+        becomingPill.className = 'pill green';
+      } else {
+        becomingPortrait.textContent = 'Could not parse me/becoming.md. Check that the file has a "## The portrait" section.';
+        becomingPill.textContent = 'Not found';
+        becomingPill.className = 'pill red';
+      }
+    }
+
+    function renderGap(text) {
+      const rows = parseGapTable(text);
+      if (!rows) {
+        gapContainer.innerHTML = '<p style="color:var(--muted);font-size:0.95rem;margin:0;">Could not parse the gap table from me/values-lived.md.</p>';
+        return;
+      }
+      gapContainer.innerHTML = `
+        <table class="gap-table">
+          <thead><tr><th>Stated</th><th>Lived</th><th>The gap</th></tr></thead>
+          <tbody>
+            ${rows.map(r => `<tr>
+              <td class="col-stated">${escHtml(r.stated)}</td>
+              <td class="col-lived">${escHtml(r.lived)}</td>
+              <td class="col-gap">${escHtml(r.gap)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderNinetyDay(nd) {
+      if (!nd.sections.length) {
+        ninetyDayContainer.innerHTML = '<p style="color:var(--muted);font-size:0.95rem;margin:0;">Could not parse goals/90-day-picture.md.</p>';
+        return;
+      }
+      const pct = nd.total ? Math.round((nd.done / nd.total) * 100) : 0;
+      ninetyDayBar.style.width = `${pct}%`;
+      ninetyDayPill.textContent = `${nd.done}/${nd.total} targets`;
+      ninetyDayPill.className = pct === 100 ? 'pill green' : pct >= 50 ? 'pill yellow' : 'pill';
+
+      ninetyDayContainer.innerHTML = nd.sections.map(sec => `
+        <div class="ninety-day-section">
+          <h3>${escHtml(sec.title)}</h3>
+          ${sec.items.map(item => `
+            <div class="ninety-day-item ${item.done ? 'done' : ''}">
+              <div class="check">${item.done ? '✓' : ''}</div>
+              <span>${escHtml(item.text)}</span>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+    }
+
+    function renderAffirmations(text) {
+      const pill = document.getElementById('affirmationsPill');
+      const list = document.getElementById('affirmationsList');
+      const body = stripFrontmatter(text || '').trim();
+      if (!body) {
+        list.innerHTML = '<p style="color:var(--muted);font-size:0.95rem;margin:0;">No affirmations found — run intake.</p>';
+        pill.textContent = 'Not found'; pill.className = 'pill red';
+        return;
+      }
+      const lines = body.split(/\r?\n/)
+        .map(l => l.replace(/^[-*\d.\s]+/, '').trim())
+        .filter(l => l && !l.startsWith('#'));
+      list.innerHTML = lines.map(l =>
+        `<p class="portrait-text" style="margin:0 0 12px;">${escHtml(l)}</p>`
+      ).join('');
+      pill.textContent = `${lines.length} loaded`; pill.className = 'pill green';
+    }
+
+    function renderVotesAndStacks(sessions) {
+      const evenings = sessions.filter(s => s.type === 'evening' && s.date)
+        .sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const now = Date.now();
+      const ageDays = d => Math.round((now - new Date(`${d}T12:00:00`)) / 86400000);
+
+      // votes
+      const habits = {};
+      for (const s of evenings) {
+        let votes = s['habits-voted'];
+        if (votes && !Array.isArray(votes) && typeof votes === 'object') {
+          votes = Object.entries(votes).map(([habit, vote]) => ({ habit, vote }));
+        }
+        if (!Array.isArray(votes)) continue;
+        for (const v of votes) {
+          if (!v || typeof v.habit !== 'string') continue;
+          habits[v.habit] ??= { p7: 0, n7: 0, p30: 0, n30: 0, spark: [] };
+          const h = habits[v.habit];
+          const a = ageDays(s.date);
+          if (a < 7) v.vote === '+' ? h.p7++ : h.n7++;
+          if (a < 30) v.vote === '+' ? h.p30++ : h.n30++;
+          h.spark.push(v.vote);
+        }
+      }
+      const votesEl = document.getElementById('habitVotes');
+      const names = Object.keys(habits).sort();
+      if (names.length) {
+        votesEl.innerHTML = names.map(n => {
+          const h = habits[n];
+          const spark = h.spark.slice(-14).map(v =>
+            `<span style="color:${v === '+' ? 'var(--green)' : 'var(--red)'};font-weight:700;">${v === '+' ? '▮' : '▯'}</span>`
+          ).join('');
+          return `<div style="margin-bottom:12px;">
+            <div style="font-weight:600;font-size:0.92rem;">${escHtml(n)}</div>
+            <div style="font-size:1rem;letter-spacing:2px;">${spark}</div>
+            <div style="color:var(--muted);font-size:0.82rem;">7d +${h.p7}/−${h.n7} · 30d +${h.p30}/−${h.n30}</div>
+          </div>`;
+        }).join('');
+      }
+
+      // stacks
+      const stacks = {};
+      for (const s of evenings) {
+        const runs = s['stacks-run'];
+        if (!Array.isArray(runs)) continue;
+        for (const r of runs) {
+          if (!r || typeof r.stack !== 'string' || !Array.isArray(r.completed)) continue;
+          stacks[r.stack] ??= { runs: 0, full: 0, bp: {}, seq: r.sequence || [] };
+          const st = stacks[r.stack];
+          st.runs++;
+          if (Array.isArray(r.sequence)) st.seq = r.sequence;
+          const fail = r.completed.findIndex(c => c !== true);
+          if (fail === -1) st.full++;
+          else { const link = st.seq[fail] || `link-${fail + 1}`; st.bp[link] = (st.bp[link] || 0) + 1; }
+        }
+      }
+      const stackEl = document.getElementById('stackList');
+      const stackPill = document.getElementById('stackPill');
+      const sNames = Object.keys(stacks).sort();
+      if (sNames.length) {
+        stackEl.innerHTML = sNames.map(n => {
+          const st = stacks[n];
+          const pct = st.runs ? Math.round((st.full / st.runs) * 100) : 0;
+          const worst = Object.entries(st.bp).sort((a, b) => b[1] - a[1])[0];
+          return `<div style="margin-bottom:14px;">
+            <div style="font-weight:600;font-size:0.92rem;">${escHtml(n)} <span style="color:var(--muted);font-weight:400;">${st.full}/${st.runs} full (${pct}%)</span></div>
+            <div class="progress-bar-wrap" style="margin:6px 0;"><div class="progress-bar" style="width:${pct}%;"></div></div>
+            <div style="color:${worst ? 'var(--red)' : 'var(--muted)'};font-size:0.82rem;">${worst ? `breaks at: ${escHtml(worst[0])} (${worst[1]}×)` : 'no breaks recorded'}</div>
+          </div>`;
+        }).join('');
+        stackPill.textContent = `${sNames.length} stack${sNames.length === 1 ? '' : 's'}`;
+        stackPill.className = 'pill green';
+      }
+    }
+
+    function countConsecutive(sortedDates) {
+      if (!sortedDates.length) return 0;
+      let streak = 1;
+      for (let i = sortedDates.length - 1; i > 0; i--) {
+        const gap = (new Date(`${sortedDates[i]}T12:00:00`) - new Date(`${sortedDates[i - 1]}T12:00:00`)) / 86400000;
+        if (Math.round(gap) === 1) streak++;
+        else break;
+      }
+      return streak;
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ── Voice / speech ────────────────────────────────────────────────────
+    speakSummaryButton.addEventListener('click', () => {
+      if (!speechSupported) return alert('Speech synthesis not available in this browser.');
+      speakText(latestSummary || coachInsight.textContent);
+    });
+
+    readResponseButton.addEventListener('click', () => {
+      if (!speechSupported) return alert('Speech synthesis not available in this browser.');
+      speakText(reflectionInput.value.trim() || 'No response yet.');
+    });
+
+    startVoiceButton.addEventListener('click', () => {
+      if (!voiceSupported) return;
+      if (!recognition) setupSpeechRecognition();
+      recognition.start();
+      summaryStatus.textContent = 'Listening…';
+      startVoiceButton.textContent = 'Listening…';
+    });
+
+    function setupSpeechRecognition() {
+      const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new Ctor();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      recognition.addEventListener('result', e => {
+        reflectionInput.value = e.results[0][0].transcript;
+        summaryStatus.textContent = 'Voice input captured';
+        startVoiceButton.textContent = 'Start voice answer';
+      });
+      recognition.addEventListener('end', () => { startVoiceButton.textContent = 'Start voice answer'; });
+      recognition.addEventListener('error', e => {
+        summaryStatus.textContent = `Voice error: ${e.error}`;
+        startVoiceButton.textContent = 'Start voice answer';
+      });
+    }
+
+    function speakText(text) {
+      if (!speechSupported) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = 0.95; u.pitch = 1.05;
+      u.voice = speechSynthesis.getVoices().find(v => v.lang.startsWith('en')) || null;
+      window.speechSynthesis.speak(u);
+    }
+  </script>
+</body>
+</html>

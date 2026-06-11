@@ -1,0 +1,15 @@
+# Personal content — populated through intake, never committed
+me/
+logs/
+journal/
+habits/vote-ledger.md
+content/ideas.md
+content/clips.md
+content/flags.md
+content/build-journal.md
+TASKS.md
+projects/
+
+# OS noise
+.DS_Store
+Thumbs.db
