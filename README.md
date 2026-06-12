@@ -43,6 +43,10 @@ The tracker (`logs/tracker.md`), vote ledger, and weekly summaries regenerate au
 
 Open `tools/coach.html` in a Chromium browser and point it at your identity-os folder: streaks, the values gap, habit vote sparklines, stack integrity, commitments. `tools/dashboard.html` is a kanban board over `TASKS.md`.
 
+![](docs/assets/coach-1.jpg)
+![](docs/assets/coach-2.jpg)
+![](docs/assets/task-board.jpg)
+
 ## Content mode (optional)
 
 Building in public? Say yes during intake and the coach quietly flags shareable moments into `content/flags.md`, captures ideas at check-ins, and runs dedicated content sessions that mine your week for material. Say no and the system never mentions it.
