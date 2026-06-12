@@ -69,8 +69,8 @@ rules/ reference/→ constraints and behavioral science
 scripts/         → zero-dependency Node automation (brief + tracker)
 logs/ journal/   → session memory (gitignored, append-only)
 ```
-If you like this project then please consider.....
-buymeacoffee.com/S.WayneDouglas
+[If you like this project then please consider.....]
+(buymeacoffee.com/S.WayneDouglas)
 ## License
 
 [CC BY 4.0](LICENSE) — fork it, remix it, build on it. Attribution appreciated.
