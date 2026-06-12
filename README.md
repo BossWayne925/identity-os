@@ -69,8 +69,8 @@ rules/ reference/→ constraints and behavioral science
 scripts/         → zero-dependency Node automation (brief + tracker)
 logs/ journal/   → session memory (gitignored, append-only)
 ```
-[If you like this project then please consider.....
-(buymeacoffee.com/S.WayneDouglas)]
+
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="S.WayneDouglas" data-color="#FFDD00" data-emoji="☕"  data-font="Bree" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
 ## License
 
 [CC BY 4.0](LICENSE) — fork it, remix it, build on it. Attribution appreciated.
